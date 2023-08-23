@@ -155,19 +155,7 @@ func getValidatedInputParams(r *http.Request, handler interface{}) (values []ref
 		}
 		// type assertion for special cases
 		switch inputStruct.(type) {
-
-		/*case *services.Auth:
-			auth, err := getAuthFromRequest(r)
-			if err != nil {
-				return nil, err
-			}
-			values[i] = reflect.ValueOf(auth)
-
-		case *services.OptionalAuth:
-			auth, _ := getAuthFromRequest(r)
-
-			values[i] = reflect.ValueOf(services.OptionalAuth{auth})*/
-
+		
 		case *multipart.File:
 
 			f, _, err := r.FormFile("file")
