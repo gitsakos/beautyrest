@@ -27,6 +27,8 @@ type EndpointHandlers struct {
 	Delete interface{}
 }
 
+var ReportErrorFunc func(err error, r *http.Request) error
+
 func HandleRoute(route string, get interface{}, post interface{}, put interface{}, delete interface{}) {
 
 	// todo integrate https://pkg.go.dev/github.com/julienschmidt/httprouter@v1.3.0
@@ -86,6 +88,9 @@ func WrapEndpointHandlers(handlers EndpointHandlers) func(http.ResponseWriter, *
 
 		if endpointHandler == nil {
 			err := fmt.Errorf("unsupported rest verb")
+			if ReportErrorFunc != nil {
+				ReportErrorFunc(err, r)
+			}
 			http.Error(w, err.Error(), http.StatusNotImplemented)
 			return
 		}
@@ -94,6 +99,9 @@ func WrapEndpointHandlers(handlers EndpointHandlers) func(http.ResponseWriter, *
 
 		values, err := getValidatedInputParams(r, endpointHandler)
 		if err != nil {
+			if ReportErrorFunc != nil {
+				ReportErrorFunc(err, r)
+			}
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -101,6 +109,9 @@ func WrapEndpointHandlers(handlers EndpointHandlers) func(http.ResponseWriter, *
 		var data interface{}
 		data, err = callHandler(endpointHandler, values)
 		if err != nil {
+			if ReportErrorFunc != nil {
+				ReportErrorFunc(err, r)
+			}
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -155,7 +166,7 @@ func getValidatedInputParams(r *http.Request, handler interface{}) (values []ref
 		}
 		// type assertion for special cases
 		switch inputStruct.(type) {
-		
+
 		case *multipart.File:
 
 			f, _, err := r.FormFile("file")
