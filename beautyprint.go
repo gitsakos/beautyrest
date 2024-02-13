@@ -2,7 +2,6 @@ package beautyrest
 
 import (
 	"fmt"
-	"ghostnote-app/services"
 	"github.com/tkrajina/typescriptify-golang-structs/typescriptify"
 	"mime/multipart"
 	"os"
@@ -26,7 +25,6 @@ func InitBeautyPrinter(basePath string, requestsPath string, responsesPath strin
 	typeScriptifier := typescriptify.New()
 	typeScriptifier.CreateInterface = true
 	typeScriptifier.BackupDir = ""
-	//typeScriptifier.Prefix = "Ghostnote"
 
 	b := beautyPrinter{
 		typeScriptifier: typeScriptifier,
@@ -125,6 +123,15 @@ func (b *beautyPrinter) printInputParams(handler interface{}) {
 
 		// and create an instance of the input param
 		inputParams := reflect.New(inputStructType).Interface()
+
+		if auth, ok := inputStruct.(AuthInterface); ok {
+			auth1, err := auth.MakeFromRequest(r)
+			if err != nil {
+				return nil, err
+			}
+			values[i] = reflect.ValueOf(auth1)
+			continue
+		}
 
 		// type assertion for special cases
 		switch inputParams.(type) {
