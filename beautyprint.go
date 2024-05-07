@@ -135,13 +135,7 @@ func (b *beautyPrinter) printInputParams(handler interface{}) {
 
 		// type assertion for special cases
 		switch inputParams.(type) {
-
-		case *services.OptionalAuth:
-			headers += fmt.Sprintf("- idToken: {{idToken}}  //optional\n")
-
-		case *services.Auth:
-			headers += fmt.Sprintf("- idToken: {{idToken}}\n")
-
+		
 		case *multipart.File:
 			headers += fmt.Sprintf("- Content-Type: multipart/form-data\n")
 
